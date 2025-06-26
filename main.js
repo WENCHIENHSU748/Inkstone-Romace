@@ -240,9 +240,9 @@ function handleAnswer(effect) {
   }
 
   // 結局選擇處理
-  if (currentStage === 8 && effect.end !== undefined) {
-    state.finalChoice = effect.end;
-  }
+  if (currentStage === 8 && effect.end === "none" && currentTarget) {
+  state.rejectedTarget = getBaseTargetId(currentTarget);
+}
 
   currentQuestionIndex++;
   const data = quizData[currentTarget];
@@ -316,6 +316,7 @@ function showEnding() {
   const baseId = getBaseTargetId(chosenCharacterId);
   const validIds = ["mo-li", "rika", "xing-hang"];
 
+  // 嘗試觸發正選結局
   if (validIds.includes(baseId)) {
     const affectionValue = state.affinity[baseId] || 0;
     if (affectionValue >= 6) {
@@ -324,18 +325,14 @@ function showEnding() {
       endingPath = `ending-${baseId}-normal.png`;
     }
   } else {
-    // 無選角，可能觸發病嬌
-    let highestAffinityChar = null;
-    let maxAffinity = -1;
-    for (const char in state.affinity) {
-      if (state.affinity[char] > maxAffinity) {
-        maxAffinity = state.affinity[char];
-        highestAffinityChar = char;
-      }
-    }
-
-    if (maxAffinity >= 3 && validIds.includes(highestAffinityChar)) {
-      endingPath = `ending-${highestAffinityChar}-yandere.png`;
+    // ✅ 僅當剛剛互動對象沒被選且好感度高才會病嬌
+    const rejectId = state.rejectedTarget; // 最後互動卻沒選的角色
+    if (
+      rejectId &&
+      validIds.includes(rejectId) &&
+      (state.affinity[rejectId] || 0) >= 3
+    ) {
+      endingPath = `ending-${rejectId}-yandere.png`;
     }
   }
 
@@ -371,23 +368,20 @@ function showEnding() {
       endingText = `${nameMap[chosenCharacterId]}接受了妳的心意。\n\n你們開始交往了，雖然還有很多磨合，但這一次，妳決定試著相信愛情。`;
     }
   } else {
-    // 單身或病嬌
-    let highestAffinityChar = null;
-    let maxAffinity = -1;
-    for (const char in state.affinity) {
-      if (state.affinity[char] > maxAffinity) {
-        maxAffinity = state.affinity[char];
-        highestAffinityChar = char;
-      }
-    }
+    // ❗ 病嬌觸發只有剛剛互動對象被拒
+    const rejectId = state.rejectedTarget;
+    const yandereEndings = {
+      "mo-li": `那天，公司群組突然傳出一張照片。是墨離趴在辦公室桌上，手腕染著墨水與血。\n\n桌上鋪滿字帖，全是妳的名字，一遍又一遍。\n\n她沒有怪妳，只留下一句話：「我寫不出來了，所以只能這樣讓妳記得我。」`,
+      "rika": `直播當晚，Rika突然笑著說：「大家知道嗎？有些人私下聊得很熱，表面卻裝沒事，超渣對吧～」\n\n聊天室瞬間爆炸。她沒有指名道姓，但大家都知道那是妳。`,
+      "xing-hang": `妳沒選星航。但她從沒放棄。\n\n起初是語音訊息、私訊。後來，她出現在妳常去的咖啡廳與住家附近。\n\n她說：「這不叫騷擾，這叫愛。」`
+    };
 
-    if (highestAffinityChar && maxAffinity >= 3) {
-      const yandereEndings = {
-        "mo-li": `那天，公司群組突然傳出一張照片。是墨離趴在辦公室桌上，手腕染著墨水與血。\n\n桌上鋪滿字帖，全是妳的名字，一遍又一遍。\n\n她沒有怪妳，只留下一句話：「我寫不出來了，所以只能這樣讓妳記得我。」`,
-        "rika": `直播當晚，Rika突然笑著說：「大家知道嗎？有些人私下聊得很熱，表面卻裝沒事，超渣對吧～」\n\n聊天室瞬間爆炸。她沒有指名道姓，但大家都知道那是妳。`,
-        "xing-hang": `妳沒選星航。但她從沒放棄。\n\n起初是語音訊息、私訊。後來，她出現在妳常去的咖啡廳與住家附近。\n\n她說：「這不叫騷擾，這叫愛。」`
-      };
-      endingText = yandereEndings[highestAffinityChar];
+    if (
+      rejectId &&
+      validIds.includes(rejectId) &&
+      (state.affinity[rejectId] || 0) >= 3
+    ) {
+      endingText = yandereEndings[rejectId];
     } else {
       endingText = `妳拒絕了所有人。\n\n但奇怪的是，妳一點也不覺得孤單。\n\n或許，是因為妳終於明白，自己的價值不需要靠別人定義。\n\n手機訊息響起，是Rika傳來的直播連結。\n\n墨離寄來一張明信片。\n\n星航發了張貼圖：是顆小小的星星。\n\n妳笑了，點開連結，泡了一杯熱茶。\n\n日子還長。`;
     }
@@ -408,6 +402,7 @@ function showEnding() {
 
   displayEnding(endingText);
 }
+
 
 
 function displayEnding(text) {
