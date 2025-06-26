@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>硯色之戀・戀愛控制台</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="layout">
+    <!-- 📊 側欄：數值狀態 -->
+    <aside id="sidebar">
+      <h2>硯的狀態</h2>
+      <p>墨離 好感度：<span id="mo-li-affinity">0</span></p>
+      <p>Rika 好感度：<span id="rika-affinity">0</span></p>
+      <p>星航 好感度：<span id="xing-hang-affinity">0</span></p>
+    </aside>
+    
+
+    <!-- 📖 中央：劇情顯示與互動 -->
+    <main id="main-content">
+      
+　　<section id="story-panel">
+  <!-- 主角立繪 -->
+        <div id="wake-event">
+          <button id="wake-up-btn" style="display: none;">睹開眼睛</button>
+        </div>
+
+        <!-- 劇情文字 -->
+        <div id="story-text" class="hidden"></div>
+
+        <!-- 起床後選擇互動對象（JS動態生成） -->
+        <div id="storyoptions" class="hidden"></div>
+
+        <!-- 互動題目 -->
+        <div id="interaction-quiz" class="hidden">
+          <div class="dialogue-header">
+            <span id="npc-name"></span>
+          </div>
+          <div id="npc-dialogue" class="dialogue-box"></div>
+          <div id="quiz-options" class="options-box"></div>
+        </div>
+
+             <div id="ending-screen" style="display:none;">
+  <div id="ending-image"></div>
+  <div id="ending-text" class="typewriter"></div>
+  <button id="restart-btn">重新開始</button>
+</div>
+      </section>
+      <img id="main-character-img" src="inkstone.png" alt="主角立繪" class="main-character-portrait" width="250" />
+      <img id="character-img" src="" alt="角色立繪" class="character-portrait hidden" />
+    </main>
+  </div>
+  <script src="script.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
